@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://wknd-trendsetters.site/fashion-trends-young-adults-casual-sport",
+  "path": "fashion-trends-young-adults-casual-sport",
+  "timestamp": "2026-09-03T11:55:49.765Z",
+  "title": "Fashion Trends for Young Adults | Fashion Blog",
+  "template": "category-landing",
+  "blocks": [
+    "hero-minimal-light-withimg-1",
+    "cards-article",
+    "columns-feature"
+  ]
+}

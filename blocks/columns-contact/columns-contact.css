@@ -1,0 +1,81 @@
+/* columns-contact -- "Let's connect" text-only two-column contact block.
+   Values extracted from source computed styles (wknd-trendsetters.site/faq). */
+
+/* Block sits inside .section.secondary (grey bg + 80px padding handled globally).
+   Section wrapper provides max-width 1200px + horizontal padding, so the block
+   itself does not re-declare those. */
+
+.columns-contact > div {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Heading (left column) -- source: 40px, no letter-spacing tweak, no margins */
+.columns-contact h2 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-xxl); /* 40px desktop */
+  font-weight: 700;
+  line-height: 44px;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+/* Intro paragraph (left column) -- muted grey */
+.columns-contact > div > div:first-child p {
+  margin: 16px 0 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-m); /* 18px */
+  line-height: 28.8px;
+  color: #404040;
+}
+
+/* Contact labels (right column) -- small uppercase grey headings.
+   In the decorated DOM the right cell is a flat sequence:
+   h3, p>a, h3, p>a, h3, p. Margins recreate the source spacing
+   (32px between items, 8px between label and value). */
+.columns-contact > div > div:last-child h3 {
+  margin: 32px 0 8px;
+  font-family: var(--heading-font-family);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 15.4px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--link-color); /* #666 */
+}
+
+.columns-contact > div > div:last-child h3:first-child {
+  margin-top: 0;
+}
+
+/* Contact values (right column) -- black text / links, no underline */
+.columns-contact > div > div:last-child p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-m); /* 18px */
+  line-height: 28.8px;
+  color: var(--text-color);
+}
+
+.columns-contact > div > div:last-child a:any-link {
+  color: var(--text-color);
+  font-size: var(--body-font-size-m);
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.columns-contact > div > div:last-child a:hover {
+  text-decoration: underline;
+}
+
+/* Desktop: two equal columns with 64px gutter */
+@media (width >= 900px) {
+  .columns-contact > div {
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+}

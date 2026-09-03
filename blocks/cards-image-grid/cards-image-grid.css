@@ -1,0 +1,47 @@
+/* Block: cards-image-grid -- 4-column uniform square image grid */
+
+/* Values extracted from source computed styles (getComputedStyle). */
+
+.cards-image-grid > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.cards-image-grid > ul > li {
+  margin: 0;
+  border: none;
+  background: none;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* image cell fills the square */
+.cards-image-grid .cards-image-grid-card-image {
+  line-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cards-image-grid .cards-image-grid-card-image picture,
+.cards-image-grid .cards-image-grid-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* second (empty) authored cell is not rendered */
+.cards-image-grid .cards-image-grid-card-body {
+  display: none;
+}
+
+@media (width >= 900px) {
+  .cards-image-grid > ul {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

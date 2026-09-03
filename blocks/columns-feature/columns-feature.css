@@ -1,0 +1,69 @@
+/* columns-feature: case-study intro -- feature image + breadcrumbs/heading/byline.
+   Values extracted from source computed styles. Scoped to .columns-feature. */
+
+/* Row: mobile-first stacked, image on top */
+.columns-feature > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.columns-feature > div > div {
+  order: 1;
+}
+
+.columns-feature > div > .columns-feature-img-col {
+  order: 0;
+}
+
+/* Feature image */
+.columns-feature img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* Heading (source: 40px / 44px, weight 700, uppercase) */
+.columns-feature h2 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 44px;
+}
+
+/* Byline + date/read-time lines (source: 14px) */
+.columns-feature > div > div p {
+  margin: 0;
+  font-size: var(--body-font-size-xs);
+  line-height: 22.4px;
+}
+
+/* "By Taylor Brooks" sits directly below the heading */
+.columns-feature > div > div h2 + p {
+  margin-top: 16px;
+  color: var(--text-color);
+}
+
+/* "June 12, 2024 • 4 min read" secondary line */
+.columns-feature > div > div p + p {
+  margin-top: 8px;
+  color: var(--link-color);
+}
+
+@media (width >= 900px) {
+  .columns-feature > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .columns-feature > div > div {
+    order: unset;
+  }
+
+  .columns-feature > div > .columns-feature-img-col {
+    order: unset;
+  }
+}

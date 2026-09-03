@@ -146,11 +146,44 @@ function decorateButtons(main) {
  * Decorates the main element.
  * @param {Element} main The main element
  */
+/**
+ * Reads each section's `.section-metadata` block and applies its values to the
+ * parent section (Style values become classes, other keys become data-*).
+ * The vendored aem.js `decorateSections` does not do this, so it is handled here.
+ * @param {Element} main The container element
+ */
+function decorateSectionMetadata(main) {
+  main.querySelectorAll(':scope > .section .section-metadata').forEach((metaBlock) => {
+    const section = metaBlock.closest('.section');
+    const meta = {};
+    metaBlock.querySelectorAll(':scope > div').forEach((row) => {
+      const [keyCell, valueCell] = row.children;
+      if (valueCell) {
+        const key = keyCell.textContent.trim().toLowerCase();
+        meta[key] = valueCell;
+      }
+    });
+    Object.keys(meta).forEach((key) => {
+      if (key === 'style') {
+        const styles = meta.style.textContent
+          .split(',')
+          .map((t) => t.trim())
+          .filter((t) => t);
+        styles.forEach((s) => section.classList.add(s.toLowerCase().replace(/\s+/g, '-')));
+      } else {
+        section.dataset[key.replace(/-([a-z])/g, (g) => g[1].toUpperCase())] = meta[key].textContent.trim();
+      }
+    });
+    metaBlock.parentElement.remove();
+  });
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
+  decorateSectionMetadata(main);
   decorateBlocks(main);
   decorateButtons(main);
 }

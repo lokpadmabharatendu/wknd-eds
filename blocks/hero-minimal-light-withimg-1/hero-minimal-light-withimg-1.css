@@ -1,0 +1,101 @@
+/* Block: hero-minimal-light-withimg-1
+   Two-column light hero: headline + subheading + 2 CTAs (left), 3-image group (right).
+   Values extracted from source computed styles at https://wknd-trendsetters.site/ */
+
+/* Section wrapper: block manages its own width inside the .section > div (max 1200px). */
+.hero-minimal-light-withimg-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: center;
+  margin: 0;
+}
+
+/* --- Image group (authored first row) --- */
+.hero-minimal-light-withimg-1 .hero-images > div {
+  margin: 0;
+}
+
+.hero-minimal-light-withimg-1 .hero-images p {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
+}
+
+.hero-minimal-light-withimg-1 .hero-images picture {
+  display: block;
+  line-height: 0;
+}
+
+.hero-minimal-light-withimg-1 .hero-images img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* --- Text content (authored second row) --- */
+.hero-minimal-light-withimg-1 .hero-content > div {
+  margin: 0;
+}
+
+.hero-minimal-light-withimg-1 .hero-content h1 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+.hero-minimal-light-withimg-1 .hero-content p {
+  margin: 24px 0 0;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+/* --- CTA buttons --- */
+.hero-minimal-light-withimg-1 .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.hero-minimal-light-withimg-1 .button-group a.button {
+  margin: 0;
+}
+
+/* No-image fallback */
+.hero-minimal-light-withimg-1.no-image {
+  grid-template-columns: 1fr;
+}
+
+@media (width >= 900px) {
+  .hero-minimal-light-withimg-1 {
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+
+  /* Text on the left, images on the right (authored order is images first). */
+  .hero-minimal-light-withimg-1 .hero-images {
+    order: 2;
+  }
+
+  .hero-minimal-light-withimg-1 .hero-content {
+    order: 1;
+  }
+
+  .hero-minimal-light-withimg-1 .hero-content h1 {
+    font-size: 56px;
+    letter-spacing: -0.02em;
+  }
+}

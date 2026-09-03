@@ -1,0 +1,42 @@
+{
+  "variantName": "hero-minimal-light-withimg-1",
+  "baseBlock": "hero",
+  "version": "1.0.0",
+  "created": "2026-09-03T07:48:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://wknd-trendsetters.site/",
+    "originPage": "landing page (home)",
+    "blockPosition": "top"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "minimal",
+    "purpose": "hero",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "heading + text + 2 CTAs + 3 images",
+    "buttonCount": 2,
+    "imageCount": 3
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "landing page intros with a headline, subheading and dual CTAs alongside an image group",
+      "light-background marketing hero sections"
+    ],
+    "notSuitableFor": [
+      "dark full-bleed background-image banners",
+      "text-only heroes"
+    ]
+  },
+  "usage": {
+    "pagesUsing": [
+      "/index",
+      "/blog",
+      "/faq",
+      "/fashion-trends-young-adults-casual-sport"
+    ],
+    "reuseCount": 4,
+    "lastUsed": "2026-09-03T11:51:03.171Z"
+  }
+}
