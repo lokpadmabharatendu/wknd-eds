@@ -1,171 +1,229 @@
-import { getMetadata } from '../../scripts/aem.js';
-import { loadFragment } from '../fragment/fragment.js';
+// Header / navigation block.
+// Content-first: all labels, links, and images come from content/nav.plain.html.
+// This module fetches that fragment, reads its DOM, and builds the header bar,
+// the Trends megamenu, and the Support dropdown. It never hardcodes nav copy.
 
-// media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
-function closeOnEscape(e) {
-  if (e.code === 'Escape') {
-    const nav = document.getElementById('nav');
-    const navSections = nav.querySelector('.nav-sections');
-    if (!navSections) return;
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections);
-      navSectionExpanded.focus();
-    } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections);
-      nav.querySelector('button').focus();
-    }
-  }
-}
-
-function closeOnFocusLost(e) {
-  const nav = e.currentTarget;
-  if (!nav.contains(e.relatedTarget)) {
-    const navSections = nav.querySelector('.nav-sections');
-    if (!navSections) return;
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections, false);
-    } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections, false);
-    }
-  }
-}
-
-function openOnKeydown(e) {
-  const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
-  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
-    // eslint-disable-next-line no-use-before-define
-    toggleAllNavSections(focused.closest('.nav-sections'));
-    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
-  }
-}
-
-function focusNavSection() {
-  document.activeElement.addEventListener('keydown', openOnKeydown);
-}
-
 /**
- * Toggles all nav sections
- * @param {Element} sections The container element
- * @param {Boolean} expanded Whether the element should be expanded or collapsed
+ * Close all open panels (megamenu + dropdowns).
+ * @param {Element} nav the nav element
  */
-function toggleAllNavSections(sections, expanded = false) {
-  if (!sections) return;
-  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
+function closeAllPanels(nav) {
+  nav.querySelectorAll('.nav-item[aria-expanded="true"]').forEach((item) => {
+    item.setAttribute('aria-expanded', 'false');
+  });
+  nav.querySelectorAll('.nav-trigger[aria-expanded="true"]').forEach((t) => {
+    t.setAttribute('aria-expanded', 'false');
   });
 }
 
 /**
- * Toggles the entire nav
- * @param {Element} nav The container element
- * @param {Element} navSections The nav sections within the container element
- * @param {*} forceExpanded Optional param to force nav expand behavior when not null
+ * Build a single top-level nav item (plain link, dropdown, or megamenu)
+ * from a source <li> in the nav content.
+ * @param {Element} li source list item
+ * @returns {Element} the decorated nav item
  */
-function toggleMenu(nav, navSections, forceExpanded = null) {
-  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
-  const button = nav.querySelector('.nav-hamburger button');
-  document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
-  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
-  // enable nav dropdown keyboard accessibility
-  if (navSections) {
-    const navDrops = navSections.querySelectorAll('.nav-drop');
-    if (isDesktop.matches) {
-      navDrops.forEach((drop) => {
-        if (!drop.hasAttribute('tabindex')) {
-          drop.setAttribute('tabindex', 0);
-          drop.addEventListener('focus', focusNavSection);
-        }
-      });
-    } else {
-      navDrops.forEach((drop) => {
-        drop.removeAttribute('tabindex');
-        drop.removeEventListener('focus', focusNavSection);
-      });
+function buildNavItem(li) {
+  const item = document.createElement('li');
+  item.className = 'nav-item';
+
+  const directLink = li.querySelector(':scope > p > a, :scope > a');
+  const directP = li.querySelector(':scope > p');
+  const submenu = li.querySelector(':scope > ul');
+
+  if (!submenu) {
+    // Plain link (About, Blog).
+    if (directLink) {
+      const a = directLink.cloneNode(true);
+      a.className = 'nav-link';
+      item.append(a);
     }
+    return item;
   }
 
-  // enable menu collapse on escape keypress
-  if (!expanded || isDesktop.matches) {
-    // collapse menu on escape press
-    window.addEventListener('keydown', closeOnEscape);
-    // collapse menu on focus lost
-    nav.addEventListener('focusout', closeOnFocusLost);
+  // Has a submenu → dropdown or megamenu.
+  const label = (directP ? directP.textContent : '').trim();
+  const trigger = document.createElement('button');
+  trigger.className = 'nav-trigger';
+  trigger.type = 'button';
+  trigger.setAttribute('aria-expanded', 'false');
+  const labelSpan = document.createElement('span');
+  labelSpan.textContent = label;
+  const caret = document.createElement('span');
+  caret.className = 'nav-caret';
+  caret.setAttribute('aria-hidden', 'true');
+  trigger.append(labelSpan, caret);
+  item.append(trigger);
+
+  // Megamenu vs simple dropdown: megamenu columns have their own nested <ul>.
+  const columns = [...submenu.children].filter((c) => c.tagName === 'LI' && c.querySelector(':scope > ul'));
+  const isMegamenu = columns.length > 0;
+
+  const panel = document.createElement('div');
+  panel.className = isMegamenu ? 'nav-panel nav-megamenu' : 'nav-panel nav-dropdown';
+
+  if (isMegamenu) {
+    [...submenu.children].forEach((colLi) => {
+      if (colLi.tagName !== 'LI') return;
+      const colList = colLi.querySelector(':scope > ul');
+      if (colList) {
+        const col = document.createElement('div');
+        col.className = 'nav-col';
+        const heading = (colLi.querySelector(':scope > p') || {}).textContent;
+        if (heading) {
+          const h = document.createElement('h3');
+          h.className = 'nav-col-heading';
+          h.textContent = heading.trim();
+          col.append(h);
+        }
+        colList.querySelectorAll(':scope > li > a').forEach((a) => {
+          col.append(a.cloneNode(true));
+        });
+        panel.append(col);
+      } else {
+        // Promo card: the <li>'s link.
+        const promoLink = colLi.querySelector('a');
+        if (promoLink) {
+          const card = promoLink.cloneNode(true);
+          card.className = 'nav-promo';
+          // Mark the promo title (first <strong>) as a heading for parity with the source.
+          const promoTitle = card.querySelector('strong');
+          if (promoTitle) promoTitle.classList.add('nav-promo-heading');
+          panel.append(card);
+        }
+      }
+    });
   } else {
-    window.removeEventListener('keydown', closeOnEscape);
-    nav.removeEventListener('focusout', closeOnFocusLost);
-  }
-}
-
-/**
- * loads and decorates the header, mainly the nav
- * @param {Element} block The header block element
- */
-export default async function decorate(block) {
-  // load nav as fragment
-  const navMeta = getMetadata('nav');
-  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const fragment = await loadFragment(navPath);
-
-  // decorate nav DOM
-  block.textContent = '';
-  const nav = document.createElement('nav');
-  nav.id = 'nav';
-  while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
-
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
-  });
-
-  const navBrand = nav.querySelector('.nav-brand');
-  const brandLink = navBrand.querySelector('.button');
-  if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
-  }
-
-  const navSections = nav.querySelector('.nav-sections');
-  if (navSections) {
-    navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
-      if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-      navSection.addEventListener('click', () => {
-        if (isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
-      });
+    submenu.querySelectorAll(':scope > li > a').forEach((a) => {
+      panel.append(a.cloneNode(true));
     });
   }
 
-  // hamburger for mobile
-  const hamburger = document.createElement('div');
-  hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="nav-hamburger-icon"></span>
-    </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-  nav.prepend(hamburger);
-  nav.setAttribute('aria-expanded', 'false');
-  // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+  item.append(panel);
+  return item;
+}
 
-  const navWrapper = document.createElement('div');
-  navWrapper.className = 'nav-wrapper';
-  navWrapper.append(nav);
-  block.append(navWrapper);
+/**
+ * Wire hover + click + keyboard behavior for trigger-based nav items.
+ * @param {Element} nav the nav element
+ */
+function wireInteractions(nav) {
+  nav.querySelectorAll('.nav-item').forEach((item) => {
+    const trigger = item.querySelector(':scope > .nav-trigger');
+    if (!trigger) return;
+
+    const open = () => {
+      if (isDesktop.matches) closeAllPanels(nav);
+      trigger.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => trigger.setAttribute('aria-expanded', 'false');
+    const toggle = () => {
+      const expanded = trigger.getAttribute('aria-expanded') === 'true';
+      closeAllPanels(nav);
+      trigger.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    };
+
+    // Desktop: hover opens/closes (matches source). Mobile: click toggles.
+    item.addEventListener('mouseenter', () => { if (isDesktop.matches) open(); });
+    item.addEventListener('mouseleave', () => { if (isDesktop.matches) close(); });
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (isDesktop.matches) {
+        // On desktop, hover governs the panel; a click just ensures it is open.
+        open();
+      } else {
+        toggle();
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target)) closeAllPanels(nav);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape') closeAllPanels(nav);
+  });
+}
+
+/**
+ * Reset nav state when crossing the desktop/mobile breakpoint.
+ * @param {Element} nav the nav element
+ */
+function handleViewportChange(nav) {
+  closeAllPanels(nav);
+  const hamburger = nav.querySelector('.nav-hamburger');
+  if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+  nav.classList.remove('nav-open');
+}
+
+/**
+ * Loads and decorates the header.
+ * @param {Element} block The header block element
+ */
+export default async function decorate(block) {
+  // Content-first dual fetch (metadata-independent): /content first, then root.
+  let resp = await fetch('/content/nav.plain.html');
+  if (!resp.ok) resp = await fetch('/nav.plain.html');
+  if (!resp.ok) return;
+  const html = await resp.text();
+
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const sections = [...tmp.children].filter((c) => c.tagName === 'DIV');
+  const [brandSection, navSection, ctaSection] = sections;
+
+  const nav = document.createElement('nav');
+  nav.id = 'nav';
+  nav.setAttribute('aria-label', 'Main navigation');
+
+  // Brand / logo.
+  const brand = document.createElement('div');
+  brand.className = 'nav-brand';
+  if (brandSection) {
+    const brandLink = brandSection.querySelector('a');
+    if (brandLink) brand.append(brandLink.cloneNode(true));
+  }
+
+  // Primary nav items (semantic list).
+  const sectionsWrap = document.createElement('ul');
+  sectionsWrap.className = 'nav-sections';
+  if (navSection) {
+    navSection.querySelectorAll(':scope > ul > li').forEach((li) => {
+      sectionsWrap.append(buildNavItem(li));
+    });
+  }
+
+  // CTA.
+  const tools = document.createElement('div');
+  tools.className = 'nav-tools';
+  if (ctaSection) {
+    const ctaLink = ctaSection.querySelector('a');
+    if (ctaLink) {
+      const cta = ctaLink.cloneNode(true);
+      cta.className = 'nav-cta';
+      tools.append(cta);
+    }
+  }
+
+  // Hamburger (mobile toggle) — built in JS per contract.
+  const hamburger = document.createElement('button');
+  hamburger.className = 'nav-hamburger';
+  hamburger.type = 'button';
+  hamburger.setAttribute('aria-label', 'Open navigation');
+  hamburger.setAttribute('aria-expanded', 'false');
+  hamburger.innerHTML = '<span class="nav-hamburger-icon"></span>';
+  hamburger.addEventListener('click', () => {
+    const open = nav.classList.toggle('nav-open');
+    hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    hamburger.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  });
+
+  nav.append(brand, hamburger, sectionsWrap, tools);
+
+  wireInteractions(nav);
+  isDesktop.addEventListener('change', () => handleViewportChange(nav));
+
+  block.textContent = '';
+  block.append(nav);
 }

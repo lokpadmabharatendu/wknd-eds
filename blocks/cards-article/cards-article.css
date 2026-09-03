@@ -1,0 +1,100 @@
+/* Block: cards-article -- linked article cards (image, category pill + date, title) */
+
+/* Values extracted from source computed styles. */
+
+.cards-article > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (width >= 600px) {
+  .cards-article > ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width >= 900px) {
+  .cards-article > ul {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cards-article > ul > li {
+  border: 1px solid rgb(232 232 232);
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: var(--background-color);
+}
+
+/* image fills the top with a fixed 16:10 aspect ratio */
+.cards-article .cards-article-card-image {
+  line-height: 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.cards-article .cards-article-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* text area below the image */
+.cards-article .cards-article-card-body {
+  padding: 24px;
+}
+
+/* meta row: category pill + date */
+.cards-article .cards-article-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+.cards-article .cards-article-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cards-article .cards-article-date {
+  color: var(--link-color);
+  font-family: var(--body-font-family);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* title */
+.cards-article .cards-article-card-body h3 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: normal;
+  text-transform: uppercase;
+}
+
+.cards-article .cards-article-card-body h3 a {
+  color: var(--text-color);
+}
+
+.cards-article .cards-article-card-body h3 a:hover {
+  text-decoration: none;
+}

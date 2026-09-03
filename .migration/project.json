@@ -1,0 +1,14 @@
+{
+  "type": "da",
+  "sites": {
+    "wknd-eds": {
+      "previewOrg": "lokpadmabharatendu",
+      "previewSite": "wknd-eds",
+      "contentHostUrl": "https://content.da.live/lokpadmabharatendu/wknd-eds/",
+      "libraryUrl": "https://main--sta-boilerplate--aemdemos.aem.page/tools/sidekick/library.json"
+    }
+  },
+  "features": [
+    "site-planning"
+  ]
+}

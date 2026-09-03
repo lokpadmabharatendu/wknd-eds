@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://wknd-trendsetters.site/fashion-trends-of-the-season",
+  "path": "fashion-trends-of-the-season",
+  "timestamp": "2026-09-03T08:03:35.832Z",
+  "title": "Top Fashion Trends for Young People | Fashion Blog",
+  "template": "landing-page",
+  "blocks": [
+    "hero-minimal-light-withimg-1",
+    "columns-feature"
+  ]
+}
